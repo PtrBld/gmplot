@@ -120,25 +120,32 @@ class GoogleMapPlotter(object):
         self.paths.append((path, settings))
 
     def heatmap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, dissipating=True):
-        """
-        :param lats: list of latitudes
-        :param lngs: list of longitudes
-        :param threshold:
-        :param radius: The hardest param. Example (string):
-        :return:
-        """
-        settings = {}
-        settings['threshold'] = threshold
-        settings['radius'] = radius
-        settings['gradient'] = gradient
-        settings['opacity'] = opacity
-        settings['dissipating'] = dissipating
-        settings = self._process_heatmap_kwargs(settings)
+        weights = [1] * len(lats)
+        self.heatmap_weighted(lats, lngs, weights, 
+                              threshold=threshold, radius=radius, gradient=gradient, 
+                              opacity=opacity, dissipating=dissipating)
+        
+    
+    def heatmap_weighted(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6, dissipating=True):
+            """
+            :param lats: list of latitudes
+            :param lngs: list of longitudes
+            :param threshold:
+            :param radius: The hardest param. Example (string):
+            :return:
+            """
+            settings = {}
+            settings['threshold'] = threshold
+            settings['radius'] = radius
+            settings['gradient'] = gradient
+            settings['opacity'] = opacity
+            settings['dissipating'] = dissipating
+            settings = self._process_heatmap_kwargs(settings)
 
-        heatmap_points = []
-        for lat, lng in zip(lats, lngs):
-            heatmap_points.append((lat, lng))
-        self.heatmap_points.append((heatmap_points, settings))
+            heatmap_points = []
+            for lat, lng, weight in zip(lats, lngs, weights):
+                heatmap_points.append((lat, lng, weight))
+            self.heatmap_points.append((heatmap_points, settings))
 
     def _process_heatmap_kwargs(self, settings_dict):
         settings_string = ''
@@ -170,7 +177,7 @@ class GoogleMapPlotter(object):
 
     # create the html file which include one google map and all points and
     # paths
-    def draw(self, htmlfile):
+    def draw(self, htmlfile, map_styles=None):
         f = open(htmlfile, 'w')
         f.write('<html>\n')
         f.write('<head>\n')
@@ -182,7 +189,7 @@ class GoogleMapPlotter(object):
         f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>\n')
         f.write('<script type="text/javascript">\n')
         f.write('\tfunction initialize() {\n')
-        self.write_map(f)
+        self.write_map(f, map_styles)
         self.write_grids(f)
         self.write_points(f)
         self.write_paths(f)
@@ -262,12 +269,16 @@ class GoogleMapPlotter(object):
             self.write_polygon(f, shape, settings)
 
     # TODO: Add support for mapTypeId: google.maps.MapTypeId.SATELLITE
-    def write_map(self,  f):
+    def write_map(self,  f, map_styles=None):
+        if map_styles is None:
+            map_styles = []
+        
         f.write('\t\tvar centerlatlng = new google.maps.LatLng(%f, %f);\n' %
                 (self.center[0], self.center[1]))
         f.write('\t\tvar myOptions = {\n')
         f.write('\t\t\tzoom: %d,\n' % (self.zoom))
         f.write('\t\t\tcenter: centerlatlng,\n')
+        f.write('\t\t\tstyles: %s,\n' % json.dumps(map_styles))
         f.write('\t\t\tmapTypeId: google.maps.MapTypeId.ROADMAP\n')
         f.write('\t\t};\n')
         f.write(
@@ -345,19 +356,19 @@ class GoogleMapPlotter(object):
     def write_heatmap(self, f):
         for heatmap_points, settings_string in self.heatmap_points:
             f.write('var heatmap_points = [\n')
-            for heatmap_lat, heatmap_lng in heatmap_points:
-                f.write('new google.maps.LatLng(%f, %f),\n' %
-                        (heatmap_lat, heatmap_lng))
+            for heatmap_lat, heatmap_lng, heatmap_weight in heatmap_points:
+                f.write('{location: new google.maps.LatLng(%f, %f), weight: %f},\n' %
+                        (heatmap_lat, heatmap_lng, heatmap_weight))
             f.write('];\n')
             f.write('\n')
-            f.write('var pointArray = new google.maps.MVCArray(heatmap_points);' + '\n')
             f.write('var heatmap;' + '\n')
             f.write('heatmap = new google.maps.visualization.HeatmapLayer({' + '\n')
             f.write('\n')
-            f.write('data: pointArray' + '\n')
+            f.write('data: heatmap_points' + '\n')
             f.write('});' + '\n')
             f.write('heatmap.setMap(map);' + '\n')
             f.write(settings_string)
+    
 
 if __name__ == "__main__":
 
