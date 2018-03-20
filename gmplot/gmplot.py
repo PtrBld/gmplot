@@ -30,7 +30,7 @@ class GoogleMapPlotter(object):
         self.gridsetting = None
 		#Todo replace with self hosted file
         self.clusterscript = "https://googlemaps.github.io/js-marker-clusterer/src/markerclusterer.js"
-		self.max_cluster_zoom = max_cluster_zoom
+        self.max_cluster_zoom = max_cluster_zoom
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         self.coloricon = self.coloricon.replace('\\', '\\\\')
         self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/')
