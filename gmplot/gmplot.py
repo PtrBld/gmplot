@@ -52,12 +52,12 @@ class GoogleMapPlotter(object):
         self.points.append((lat, lng, color[1:], title, text_color, text))
 
 
-    def text(self, lat, lng, text, color='#000000', c=None, title=None):
+    def text(self, lat, lng, text, color='#000000', c=None, title=None, text_size=14):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.text_points.append((lat, lng, color[1:], text, title))
+        self.text_points.append((lat, lng, color[1:], text, title, text_size))
 
 
     def scatter(self, lats, lngs, color=None, size=None, marker=True, c=None, s=None, **kwargs):
@@ -309,7 +309,7 @@ class GoogleMapPlotter(object):
 
     def write_text(self, f):
         for text_point in self.text_points:
-            self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3], text_point[4])
+            self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3], text_point[4], text_point[5])
 
 
     def get_cycle(self, lat, lng, rad):
@@ -359,15 +359,16 @@ class GoogleMapPlotter(object):
             '\t\tvar map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);\n')
         f.write('\n')
 
-    def write_marker(self, f, lat, lon, marker_color, text_color, title, text):
+    def write_marker(self, f, lat, lon, marker_color, text_color, title, text,font_size=14):
         f.write('\t\tnew google.maps.Marker({\n')
         if title is not None:
             f.write('\t\ttitle: "%s",\n' % title)
         if text is not None:
             f.write('\t\tlabel: {\
             color: "%(1)s",\
+            fontSize: "%(2)spx",\
             fontWeight: "bold",\
-            text: "%(2)s" },\n' % {'1': text_color, '2': text})
+            text: "%(2)s" },\n' % {'1': text_color, '2': str(font_size), '3': text})
         f.write('\t\ticon: new google.maps.MarkerImage(\'%s\'),\n' % (self.coloricon % marker_color))
         f.write('\t\tposition: new google.maps.LatLng(%f, %f),\n' % (lat, lon))
         f.write('\t\t}),\n')
@@ -375,8 +376,8 @@ class GoogleMapPlotter(object):
     def write_point(self, f, lat, lon, color, title, text_color, text):
         self.write_marker(f, lat, lon, color, text_color, title, text)
 
-    def write_text_point(self, f, lat, lon, text_color, text, title):
-        self.write_marker(f, lat, lon, "clear", text_color, title, text)
+    def write_text_point(self, f, lat, lon, text_color, text, title, font_size):
+        self.write_marker(f, lat, lon, "clear", text_color, title, text, font_size)
 
 
     def write_polyline(self, f, path, settings):
