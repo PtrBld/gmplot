@@ -254,7 +254,7 @@ class GoogleMapPlotter(object):
         f.write('\n')
         if self.clustered:
             f.write(
-                '\tvar markerCluster = new MarkerClusterer(map, markers,{maxZoom: '+self.max_cluster_zoom+', imagePath: "'+self.clustericons+'"});\n')
+                '\tvar markerCluster = new MarkerClusterer(map, markers,{maxZoom: '+str(self.max_cluster_zoom)+', imagePath: "'+self.clustericons+'"});\n')
         else:
             f.write('\tmarkers.map(function(marker, i){\n')
             f.write('\t\tmarker.setMap(map);\n')
