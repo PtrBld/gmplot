@@ -368,7 +368,7 @@ class GoogleMapPlotter(object):
             color: "%(1)s",\
             fontSize: "%(2)spx",\
             fontWeight: "bold",\
-            text: "%(2)s" },\n' % {'1': text_color, '2': str(font_size), '3': text})
+            text: "%(3)s" },\n' % {'1': text_color, '2': str(font_size), '3': text})
         f.write('\t\ticon: new google.maps.MarkerImage(\'%s\'),\n' % (self.coloricon % marker_color))
         f.write('\t\tposition: new google.maps.LatLng(%f, %f),\n' % (lat, lon))
         f.write('\t\t}),\n')
