@@ -363,8 +363,8 @@ class GoogleMapPlotter(object):
             color: "%(1)s",\
             fontWeight: "bold",\
             text: "%(2)s" },\n' % {'1': text_color, '2': text})
-        f.write('\t\ticon: new google.maps.MarkerImage(\'%s\');\n' % (self.coloricon % marker_color))
-        f.write('\t\tposition: new google.maps.LatLng(%f, %f);\n' % (lat, lon))
+        f.write('\t\ticon: new google.maps.MarkerImage(\'%s\'),\n' % (self.coloricon % marker_color))
+        f.write('\t\tposition: new google.maps.LatLng(%f, %f),\n' % (lat, lon))
         f.write('\t\t}),\n')
 
     def write_point(self, f, lat, lon, color, title, text_color, text):
