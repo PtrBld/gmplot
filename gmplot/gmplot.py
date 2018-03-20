@@ -1,7 +1,7 @@
-import math
-import requests
 import json
+import math
 import os
+import requests
 
 from .color_dicts import mpl_color_map, html_color_codes
 
@@ -121,11 +121,28 @@ class GoogleMapPlotter(object):
         path = zip(lats, lngs)
         self.paths.append((path, settings))
 
-    def heatmap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, dissipating=True):
-        weights = [1] * len(lats)
-        self.heatmap_weighted(lats, lngs, weights, 
-                              threshold=threshold, radius=radius, gradient=gradient, 
-                              opacity=opacity, dissipating=dissipating)
+        def heatmap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=None, dissipating=True):
+        """
+        :param lats: list of latitudes
+        :param lngs: list of longitudes
+        :param maxIntensity:(int) max frequency to use when plotting. Default (None) uses max value on map domain.
+        :param threshold:
+        :param radius: The hardest param. Example (string):
+        :return:
+        """
+        settings = {}
+        settings['threshold'] = threshold
+        settings['radius'] = radius
+        settings['gradient'] = gradient
+        settings['opacity'] = opacity
+        settings['maxIntensity'] = maxIntensity
+        settings['dissipating'] = dissipating
+        settings = self._process_heatmap_kwargs(settings)
+
+        heatmap_points = []
+        for lat, lng in zip(lats, lngs):
+            heatmap_points.append((lat, lng))
+        self.heatmap_points.append((heatmap_points, settings))
         
     
     def heatmap_weighted(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6, dissipating=True):
@@ -153,6 +170,7 @@ class GoogleMapPlotter(object):
         settings_string = ''
         settings_string += "heatmap.set('threshold', %d);\n" % settings_dict['threshold']
         settings_string += "heatmap.set('radius', %d);\n" % settings_dict['radius']
+        settings_string += "heatmap.set('maxIntensity', %d);\n" % settings_dict['maxIntensity']
         settings_string += "heatmap.set('opacity', %f);\n" % settings_dict['opacity']
 
         dissipation_string = 'true' if settings_dict['dissipating'] else 'false'
@@ -177,6 +195,7 @@ class GoogleMapPlotter(object):
         shape = zip(lats, lngs)
         self.shapes.append((shape, settings))
 
+
     def fitBounds(self, latNE, lngNE, latSW, lngSW):
         """adjust the map zoom to fit the given bounds"""
 
@@ -184,9 +203,14 @@ class GoogleMapPlotter(object):
         #       for every new object added to the map
         self._fitBounds = (latNE, lngNE, latSW, lngSW)
 
+		
     # create the html file which include one google map and all points and
     # paths
     def draw(self, htmlfile, map_styles=None):
+        """Create the html file which include one google map and all points and paths. If 
+        no string is provided, return the raw html.
+        """
+
         f = open(htmlfile, 'w')
         f.write('<html>\n')
         f.write('<head>\n')
@@ -194,7 +218,9 @@ class GoogleMapPlotter(object):
             '<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />\n')
         f.write(
             '<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>\n')
-        f.write('<title>Google Maps - pygmaps </title>\n')
+
+        f.write('<title>Google Maps - gmplot </title>\n')
+
         if self.apikey:
             f.write('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false&key=%s"></script>\n' % self.apikey )
         else:
