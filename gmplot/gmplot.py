@@ -28,8 +28,12 @@ class GoogleMapPlotter(object):
         self.heatmap_points = []
         self.radpoints = []
         self.gridsetting = None
+		self.clusterscript = os.path.join(os.path.dirname(__file__), 'js/markerclusterer.js')
+		self.clusterscript = self.clusterscript.replace('\\', '\\\\')
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         self.coloricon = self.coloricon.replace('\\', '\\\\')
+		self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/'
+		self.clustericons = self.clustericons.replace('\\', '\\\\')
         self.color_dict = mpl_color_map
         self.html_color_codes = html_color_codes
         self._fitBounds = None
@@ -226,14 +230,14 @@ class GoogleMapPlotter(object):
         f.write('<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />\n')
         f.write('<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>\n')
         f.write('<title>Google Maps - gmplot </title>\n')
-
         if self.apikey:
             f.write(
                 '<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false&key=%s"></script>\n' % self.apikey)
         else:
             f.write(
                 '<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>\n')
-
+		if self.clustered:
+			f.write('<script type="text/javascript" src="%s"></script>\n' % self.clusterscript)
         f.write('<script type="text/javascript">\n')
         f.write('\tfunction initialize() {\n')
         self.write_map(f, map_styles)
@@ -249,7 +253,7 @@ class GoogleMapPlotter(object):
         f.write('\n')
         if self.clustered:
             f.write(
-                '\tvar markerCluster = new MarkerClusterer(map, markers,{imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"});\n')
+                '\tvar markerCluster = new MarkerClusterer(map, markers,{imagePath: "'+self.clustericons+'"});\n')
         else:
             f.write('\tmarkers.map(function(marker, i){\n')
             f.write('\t\tmarker.setMap(map);\n')
