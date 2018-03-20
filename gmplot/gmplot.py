@@ -368,10 +368,10 @@ class GoogleMapPlotter(object):
         f.write('\t\t}),\n')
 
     def write_point(self, f, lat, lon, color, title, text_color, text):
-        self.write_marker(self, f, lat, lon, color, text_color, title, text)
+        self.write_marker(f, lat, lon, color, text_color, title, text)
 
     def write_text_point(self, f, lat, lon, text_color, text, title):
-        self.write_marker(self, f, lat, lon, "clear", text_color, title, text)
+        self.write_marker(f, lat, lon, "clear", text_color, title, text)
 
 
     def write_polyline(self, f, path, settings):
