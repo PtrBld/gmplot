@@ -33,7 +33,7 @@ class GoogleMapPlotter(object):
         self.max_cluster_zoom = max_cluster_zoom
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         self.coloricon = self.coloricon.replace('\\', '\\\\')
-        self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/')
+        self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/m')
         self.clustericons = self.clustericons.replace('\\', '\\\\')
         self.color_dict = mpl_color_map
         self.html_color_codes = html_color_codes
