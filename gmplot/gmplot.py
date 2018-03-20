@@ -15,7 +15,7 @@ def safe_iter(var):
 
 class GoogleMapPlotter(object):
 
-    def __init__(self, center_lat, center_lng, zoom, apikey='', clustered=False):
+    def __init__(self, center_lat, center_lng, zoom, apikey='', clustered=False, max_cluster_zoom=12):
         self.center = (float(center_lat), float(center_lng))
         self.zoom = int(zoom)
         self.clustered = clustered
@@ -30,6 +30,7 @@ class GoogleMapPlotter(object):
         self.gridsetting = None
 		#Todo replace with self hosted file
         self.clusterscript = "https://googlemaps.github.io/js-marker-clusterer/src/markerclusterer.js"
+		self.max_cluster_zoom = max_cluster_zoom
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         self.coloricon = self.coloricon.replace('\\', '\\\\')
         self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/')
@@ -253,7 +254,7 @@ class GoogleMapPlotter(object):
         f.write('\n')
         if self.clustered:
             f.write(
-                '\tvar markerCluster = new MarkerClusterer(map, markers,{imagePath: "'+self.clustericons+'"});\n')
+                '\tvar markerCluster = new MarkerClusterer(map, markers,{maxZoom: '+self.max_cluster_zoom+', imagePath: "'+self.clustericons+'"});\n')
         else:
             f.write('\tmarkers.map(function(marker, i){\n')
             f.write('\t\tmarker.setMap(map);\n')
