@@ -15,9 +15,10 @@ def safe_iter(var):
 
 class GoogleMapPlotter(object):
 
-    def __init__(self, center_lat, center_lng, zoom, apikey=''):
+    def __init__(self, center_lat, center_lng, zoom, apikey='',clustered=False):
         self.center = (float(center_lat), float(center_lng))
         self.zoom = int(zoom)
+		self.clustered = clustered
         self.apikey = str(apikey)
         self.grids = None
         self.paths = []
@@ -49,19 +50,20 @@ class GoogleMapPlotter(object):
     def grid(self, slat, elat, latin, slng, elng, lngin):
         self.gridsetting = [slat, elat, latin, slng, elng, lngin]
 
-    def marker(self, lat, lng, color='#FF0000', c=None, title="no implementation"):
+
+    def marker(self, lat, lng, title, color='#FF0000', c=None, text=None, text_color='#FF0000'):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.points.append((lat, lng, color[1:], title))
+        self.points.append((lat, lng, color[1:], title, text_color, text))
     
-    def text(self, lat, lng, color='#000000', c=None, text="no implementation"):
+    def text(self, lat, lng,  text, color='#000000', c=None, title=None):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.text_points.append((lat, lng, color[1:], text))
+        self.text_points.append((lat, lng, color[1:], text,title))
 
     def scatter(self, lats, lngs, color=None, size=None, marker=True, c=None, s=None, **kwargs):
         color = color or c
@@ -240,12 +242,21 @@ class GoogleMapPlotter(object):
         self.write_map(f, map_styles)
         self.write_grids(f)
         self.write_points(f)
-        self.write_paths(f)
         self.write_shapes(f)
         self.write_heatmap(f)
         self.write_fitBounds(f)
-        self.write_text(f)
-        f.write('\t}\n')
+		f.write('\tvar markers = [\n')
+		self.write_paths(f)
+		self.write_text(f)	
+		f.write('\t]\n')
+		f.write('\n')
+		if self.clustered:
+			f.write('\tvar markerCluster = new MarkerClusterer(map, markers,{imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m"});\n')
+        else:
+			f.write('\tmarkers.map(function(marker, i){\n')
+			f.write('\t\tmarker.setMap(map);\n'
+			f.write('\t});\n')
+		f.write('\t}\n')
         f.write('</script>\n')
         f.write('</head>\n')
         f.write(
@@ -289,28 +300,11 @@ class GoogleMapPlotter(object):
 
     def write_points(self, f):
         for point in self.points:
-            self.write_point(f, point[0], point[1], point[2], point[3])
+            self.write_point(f, point[0], point[1], point[2], point[3], point[4], point[5])
  
     def write_text(self, f):
         for text_point in self.text_points:
-            self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3])
-			
-    def write_text_point(self, f, lat, lon, color, text):
-        f.write('\t\tvar latlng = new google.maps.LatLng(%f, %f);\n' %
-                (lat, lon))
-        f.write('\t\tvar img = new google.maps.MarkerImage(\'%s\');\n' %
-                (self.coloricon % 'clear'))
-        f.write('\t\tvar marker = new google.maps.Marker({\n')
-		
-        f.write('\t\tlabel: {\
-    color: "%(1)s",\
-    fontWeight: "bold",\
-    text: "%(2)s" },\n' % {'1':color, '2': text})
-        f.write('\t\ticon: img,\n')
-        f.write('\t\tposition: latlng\n')
-        f.write('\t\t});\n')
-        f.write('\t\tmarker.setMap(map);\n')
-        f.write('\n')
+            self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3], point[4])
 
 
     def get_cycle(self, lat, lng, rad):
@@ -356,19 +350,25 @@ class GoogleMapPlotter(object):
         f.write(
             '\t\tvar map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);\n')
         f.write('\n')
-
-    def write_point(self, f, lat, lon, color, title):
-        f.write('\t\tvar latlng = new google.maps.LatLng(%f, %f);\n' %
-                (lat, lon))
-        f.write('\t\tvar img = new google.maps.MarkerImage(\'%s\');\n' %
-                (self.coloricon % color))
-        f.write('\t\tvar marker = new google.maps.Marker({\n')
-        f.write('\t\ttitle: "%s",\n' % title)
-        f.write('\t\ticon: img,\n')
-        f.write('\t\tposition: latlng\n')
-        f.write('\t\t});\n')
-        f.write('\t\tmarker.setMap(map);\n')
-        f.write('\n')
+		
+	def write_marker(self,f,lat,lon,marker_color, text_color, title, text):
+		f.write('\t\tnew google.maps.Marker({\n')
+		if title is not None:
+			f.write('\t\ttitle: "%s",\n' % title)
+		if text is not None:
+			f.write('\t\tlabel: {\
+				color: "%(1)s",\
+				fontWeight: "bold",\
+				text: "%(2)s" },\n' % {'1':color, '2': text})
+		f.write('\t\ticon: new google.maps.MarkerImage(\'%s\');\n' %(self.coloricon % marker_color)))
+        f.write('\t\tposition: new google.maps.LatLng(%f, %f);\n' % (lat, lon))
+        f.write('\t\t}),\n')
+		
+    def write_point(self, f, lat, lon, color,title,text_color ,text):
+        write_marker(self,f,lat,lon,color,text_color,title,text)
+        	
+	def write_text_point(self, f, lat, lon, text_color,text,title):
+		write_marker(self,f,lat,lon,"clear",text_color,title,text)
 
     def write_polyline(self, f, path, settings):
         clickable = False
