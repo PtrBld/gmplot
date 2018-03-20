@@ -158,7 +158,7 @@ class GoogleMapPlotter(object):
             settings['radius'] = radius
             settings['gradient'] = gradient
             settings['opacity'] = opacity
-	    settings['maxIntensity'] = maxIntensity
+            settings['maxIntensity'] = maxIntensity
             settings['dissipating'] = dissipating
             settings = self._process_heatmap_kwargs(settings)
 
