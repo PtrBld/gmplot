@@ -41,16 +41,16 @@ a location:
 
 ::
 
-    gmap = gmplot.from_geocode("San Francisco")
+    gmap = gmplot.GoogleMapPlotter.from_geocode("San Francisco")
 
 Plot types
 ----------
 
-* Polygons with fills.
-* Drop pins.
-* Scatter points.
-* Grid lines.
-* Heatmaps.
+* Polygons with fills - ``plot``
+* Drop pins. - ``marker``
+* Scatter points. - ``scatter``
+* Grid lines. - ``grid``
+* Heatmaps. - ``heatmap``
 
 .. image:: http://i.imgur.com/dTNkbZ7.png
 
