@@ -28,8 +28,8 @@ class GoogleMapPlotter(object):
         self.heatmap_points = []
         self.radpoints = []
         self.gridsetting = None
-        self.clusterscript = os.path.join(os.path.dirname(__file__), 'js/markerclusterer.js')
-        self.clusterscript = self.clusterscript.replace('\\', '\\\\')
+		#Todo replace with self hosted file
+        self.clusterscript = "https://googlemaps.github.io/js-marker-clusterer/src/markerclusterer.js"
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         self.coloricon = self.coloricon.replace('\\', '\\\\')
         self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/')
