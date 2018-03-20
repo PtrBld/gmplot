@@ -19,7 +19,7 @@ setup(
     packages = find_packages(),
     include_package_data=True,
     package_data = {
-        'gmplot': ['markers/*.png'],
+        'gmplot': ['markers/*.png','js/*.js','cluster/*.png'],
     },
     install_requires=['requests'],
 )
