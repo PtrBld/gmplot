@@ -28,12 +28,12 @@ class GoogleMapPlotter(object):
         self.heatmap_points = []
         self.radpoints = []
         self.gridsetting = None
-		self.clusterscript = os.path.join(os.path.dirname(__file__), 'js/markerclusterer.js')
-		self.clusterscript = self.clusterscript.replace('\\', '\\\\')
+        self.clusterscript = os.path.join(os.path.dirname(__file__), 'js/markerclusterer.js')
+        self.clusterscript = self.clusterscript.replace('\\', '\\\\')
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
         self.coloricon = self.coloricon.replace('\\', '\\\\')
-		self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/'
-		self.clustericons = self.clustericons.replace('\\', '\\\\')
+        self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/')
+        self.clustericons = self.clustericons.replace('\\', '\\\\')
         self.color_dict = mpl_color_map
         self.html_color_codes = html_color_codes
         self._fitBounds = None
@@ -236,8 +236,8 @@ class GoogleMapPlotter(object):
         else:
             f.write(
                 '<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false"></script>\n')
-		if self.clustered:
-			f.write('<script type="text/javascript" src="%s"></script>\n' % self.clusterscript)
+        if self.clustered:
+            f.write('<script type="text/javascript" src="%s"></script>\n' % self.clusterscript)
         f.write('<script type="text/javascript">\n')
         f.write('\tfunction initialize() {\n')
         self.write_map(f, map_styles)
