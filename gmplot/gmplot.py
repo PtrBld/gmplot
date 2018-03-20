@@ -145,7 +145,7 @@ class GoogleMapPlotter(object):
         self.heatmap_points.append((heatmap_points, settings))
         
     
-    def heatmap_weighted(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6, dissipating=True):
+    def heatmap_weighted(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=None, dissipating=True):
             """
             :param lats: list of latitudes
             :param lngs: list of longitudes
