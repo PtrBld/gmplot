@@ -15,7 +15,7 @@ def safe_iter(var):
 
 class GoogleMapPlotter(object):
 
-    def __init__(self, center_lat, center_lng, zoom, apikey='', clustered=False, max_cluster_zoom=12):
+    def __init__(self, center_lat, center_lng, zoom, apikey='', clustered=False, max_cluster_zoom=12,cluster_dir = None, marker_dir = None):
         self.center = (float(center_lat), float(center_lng))
         self.zoom = int(zoom)
         self.clustered = clustered
@@ -29,12 +29,20 @@ class GoogleMapPlotter(object):
         self.radpoints = []
         self.gridsetting = None
         # Todo replace with self hosted file
+        if cluster_dir is None:
+            self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/m')
+            self.clustericons = self.clustericons.replace('\\', '\\\\')
+        else:
+            self.clustericons = cluster_dir
+        if marker_dir is None:
+            self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
+            self.coloricon = self.coloricon.replace('\\', '\\\\')
+        else:
+            self.coloricon = marker_dir + "/%s.png"
         self.clusterscript = "https://googlemaps.github.io/js-marker-clusterer/src/markerclusterer.js"
         self.max_cluster_zoom = max_cluster_zoom
-        self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
-        self.coloricon = self.coloricon.replace('\\', '\\\\')
-        self.clustericons = os.path.join(os.path.dirname(__file__), 'cluster/m')
-        self.clustericons = self.clustericons.replace('\\', '\\\\')
+
+
         self.color_dict = mpl_color_map
         self.html_color_codes = html_color_codes
         self._fitBounds = None
