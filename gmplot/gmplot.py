@@ -44,20 +44,20 @@ class GoogleMapPlotter(object):
         self.gridsetting = [slat, elat, latin, slng, elng, lngin]
 
 
-    def marker(self, lat, lng, title, color='#FF0000', c=None, text=None, text_color='#FF0000'):
+    def marker(self, lat, lng, title, color='#FF0000', c=None, text=None, text_color='#FF0000',onclick=None):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.points.append((lat, lng, color[1:], title, text_color, text))
+        self.points.append((lat, lng, color[1:], title, text_color, text,onclick))
 
 
-    def text(self, lat, lng, text, color='#000000', c=None, title=None, text_size=14):
+    def text(self, lat, lng, text, color='#000000', c=None, title=None, text_size=14,onclick=None):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.text_points.append((lat, lng, color[1:], text, title, text_size))
+        self.text_points.append((lat, lng, color[1:], text, title, text_size,onclick))
 
 
     def scatter(self, lats, lngs, color=None, size=None, marker=True, c=None, s=None, **kwargs):
@@ -252,6 +252,7 @@ class GoogleMapPlotter(object):
         self.write_text(f)
         f.write('\t]\n')
         f.write('\n')
+        self.write_handlers(f)
         if self.clustered:
             f.write(
                 '\tvar markerCluster = new MarkerClusterer(map, markers,{maxZoom: '+str(self.max_cluster_zoom)+', imagePath: "'+self.clustericons+'"});\n')
@@ -311,6 +312,18 @@ class GoogleMapPlotter(object):
         for text_point in self.text_points:
             self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3], text_point[4], text_point[5])
 
+    def write_handlers(self, f):
+        for i, point in enumerate(self.points):
+            if point[6] is not None:
+                self.add_handler(f, i,point[6])
+        for i, text_point in enumerate(self.text_points):
+            if text_point[6] is not None:
+                self.add_handler(f, i,text_point[6])
+	
+    def add_handler(self, f, marker_index, function_string):
+        f.write('markers[%s].addListener("click",function(){\n' % str(marker_index))
+        f.write('\talert(markers[%s].getLabel())\n' % str(marker_index))
+        f.write('})\n')
 
     def get_cycle(self, lat, lng, rad):
         # unit of radius: meter
