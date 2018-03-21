@@ -28,7 +28,7 @@ class GoogleMapPlotter(object):
         self.heatmap_points = []
         self.radpoints = []
         self.gridsetting = None
-		#Todo replace with self hosted file
+        # Todo replace with self hosted file
         self.clusterscript = "https://googlemaps.github.io/js-marker-clusterer/src/markerclusterer.js"
         self.max_cluster_zoom = max_cluster_zoom
         self.coloricon = os.path.join(os.path.dirname(__file__), 'markers/%s.png')
@@ -39,26 +39,22 @@ class GoogleMapPlotter(object):
         self.html_color_codes = html_color_codes
         self._fitBounds = None
 
-
     def grid(self, slat, elat, latin, slng, elng, lngin):
         self.gridsetting = [slat, elat, latin, slng, elng, lngin]
 
-
-    def marker(self, lat, lng, title, color='#FF0000', c=None, text=None, text_color='#FF0000',onclick=None):
+    def marker(self, lat, lng, title, color='#FF0000', c=None, text=None, text_color='#FF0000', onclick=None):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.points.append((lat, lng, color[1:], title, text_color, text,onclick))
+        self.points.append((lat, lng, color[1:], title, text_color, text, onclick))
 
-
-    def text(self, lat, lng, text, color='#000000', c=None, title=None, text_size=14,onclick=None):
+    def text(self, lat, lng, text, color='#000000', c=None, title=None, text_size=14, onclick=None):
         if c:
             color = c
         color = self.color_dict.get(color, color)
         color = self.html_color_codes.get(color, color)
-        self.text_points.append((lat, lng, color[1:], text, title, text_size,onclick))
-
+        self.text_points.append((lat, lng, color[1:], text, title, text_size, onclick))
 
     def scatter(self, lats, lngs, color=None, size=None, marker=True, c=None, s=None, **kwargs):
         color = color or c
@@ -72,7 +68,6 @@ class GoogleMapPlotter(object):
             else:
                 self.circle(lat, lng, size, **settings)
 
-
     def circle(self, lat, lng, radius, color=None, c=None, **kwargs):
         color = color or c
         kwargs.setdefault('face_alpha', 0.5)
@@ -81,7 +76,6 @@ class GoogleMapPlotter(object):
         settings = self._process_kwargs(kwargs)
         path = self.get_cycle(lat, lng, radius)
         self.shapes.append((path, settings))
-
 
     def _process_kwargs(self, kwargs):
         settings = dict()
@@ -122,7 +116,6 @@ class GoogleMapPlotter(object):
 
         return settings
 
-
     def plot(self, lats, lngs, color=None, c=None, **kwargs):
         color = color or c
         kwargs.setdefault("color", color)
@@ -130,8 +123,8 @@ class GoogleMapPlotter(object):
         path = zip(lats, lngs)
         self.paths.append((path, settings))
 
-
-    def heatmap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=None, dissipating=True):
+    def heatmap(self, lats, lngs, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=None,
+                dissipating=True):
         """
         :param lats: list of latitudes
         :param lngs: list of longitudes
@@ -154,8 +147,8 @@ class GoogleMapPlotter(object):
             heatmap_points.append((lat, lng))
         self.heatmap_points.append((heatmap_points, settings))
 
-
-    def heatmap_weighted(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6, maxIntensity=None,
+    def heatmap_weighted(self, lats, lngs, weights, threshold=10, radius=10, gradient=None, opacity=0.6,
+                         maxIntensity=None,
                          dissipating=True):
         """
         :param lats: list of latitudes
@@ -177,7 +170,6 @@ class GoogleMapPlotter(object):
         for lat, lng, weight in zip(lats, lngs, weights):
             heatmap_points.append((lat, lng, weight))
         self.heatmap_points.append((heatmap_points, settings))
-
 
     def _process_heatmap_kwargs(self, settings_dict):
         settings_string = ''
@@ -201,7 +193,6 @@ class GoogleMapPlotter(object):
 
         return settings_string
 
-
     def polygon(self, lats, lngs, color=None, c=None, **kwargs):
         color = color or c
         kwargs.setdefault("color", color)
@@ -209,14 +200,12 @@ class GoogleMapPlotter(object):
         shape = zip(lats, lngs)
         self.shapes.append((shape, settings))
 
-
     def fitBounds(self, latNE, lngNE, latSW, lngSW):
         """adjust the map zoom to fit the given bounds"""
 
         # TODO: the bounds coords could be computed automatically, by updating them
         #       for every new object added to the map
         self._fitBounds = (latNE, lngNE, latSW, lngSW)
-
 
     # create the html file which include one google map and all points and
     # paths
@@ -255,7 +244,8 @@ class GoogleMapPlotter(object):
         self.write_handlers(f)
         if self.clustered:
             f.write(
-                '\tvar markerCluster = new MarkerClusterer(map, markers,{maxZoom: '+str(self.max_cluster_zoom)+', imagePath: "'+self.clustericons+'"});\n')
+                '\tvar markerCluster = new MarkerClusterer(map, markers,{maxZoom: ' + str(
+                    self.max_cluster_zoom) + ', imagePath: "' + self.clustericons + '"});\n')
         else:
             f.write('\tmarkers.map(function(marker, i){\n')
             f.write('\t\tmarker.setMap(map);\n')
@@ -269,11 +259,9 @@ class GoogleMapPlotter(object):
         f.write('</html>\n')
         f.close()
 
-
     #############################################
     # # # # # # Low level Map Drawing # # # # # #
     #############################################
-
 
     def write_grids(self, f):
         if self.gridsetting is None:
@@ -302,27 +290,27 @@ class GoogleMapPlotter(object):
             settings = self._process_kwargs({"color": "#000000"})
             self.write_polyline(f, line, settings)
 
-
     def write_points(self, f):
         for point in self.points:
             self.write_point(f, point[0], point[1], point[2], point[3], point[4], point[5])
 
-
     def write_text(self, f):
         for text_point in self.text_points:
-            self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3], text_point[4], text_point[5])
+            self.write_text_point(f, text_point[0], text_point[1], text_point[2], text_point[3], text_point[4],
+                                  text_point[5])
 
     def write_handlers(self, f):
         for i, point in enumerate(self.points):
             if point[6] is not None:
-                self.add_handler(f, i,point[6])
+                self.add_handler(f, i, point[6])
         for i, text_point in enumerate(self.text_points):
             if text_point[6] is not None:
-                self.add_handler(f, i,text_point[6])
-	
+                self.add_handler(f, i, text_point[6])
+
     def add_handler(self, f, marker_index, function_string):
         f.write('markers[%s].addListener("click",function(){\n' % str(marker_index))
-        f.write('\talert(markers[%s].getLabel())\n' % str(marker_index))
+        function_string = function_string.strip(". ")
+        f.write('\talert(markers[%(1)s].%(2)s)\n' % {'1':str(marker_index), '2':function_string})
         f.write('})\n')
 
     def get_cycle(self, lat, lng, rad):
@@ -344,16 +332,13 @@ class GoogleMapPlotter(object):
                 (float(y * (180.0 / math.pi)), float(x * (180.0 / math.pi))))
         return cycle
 
-
     def write_paths(self, f):
         for path, settings in self.paths:
             self.write_polyline(f, path, settings)
 
-
     def write_shapes(self, f):
         for shape, settings in self.shapes:
             self.write_polygon(f, shape, settings)
-
 
     # TODO: Add support for mapTypeId: google.maps.MapTypeId.SATELLITE
     def write_map(self, f, map_styles=None):
@@ -372,7 +357,7 @@ class GoogleMapPlotter(object):
             '\t\tvar map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);\n')
         f.write('\n')
 
-    def write_marker(self, f, lat, lon, marker_color, text_color, title, text,font_size=14):
+    def write_marker(self, f, lat, lon, marker_color, text_color, title, text, font_size=14):
         f.write('\t\tnew google.maps.Marker({\n')
         if title is not None:
             f.write('\t\ttitle: "%s",\n' % title)
@@ -391,7 +376,6 @@ class GoogleMapPlotter(object):
 
     def write_text_point(self, f, lat, lon, text_color, text, title, font_size):
         self.write_marker(f, lat, lon, "clear", text_color, title, text, font_size)
-
 
     def write_polyline(self, f, path, settings):
         clickable = False
@@ -418,7 +402,6 @@ class GoogleMapPlotter(object):
         f.write('\n')
         f.write('Path.setMap(map);\n')
         f.write('\n\n')
-
 
     def write_polygon(self, f, path, settings):
         clickable = False
@@ -449,7 +432,6 @@ class GoogleMapPlotter(object):
         f.write('polygon.setMap(map);\n')
         f.write('\n\n')
 
-
     def write_heatmap(self, f):
         for heatmap_points, settings_string in self.heatmap_points:
             f.write('var heatmap_points = [\n')
@@ -465,7 +447,6 @@ class GoogleMapPlotter(object):
             f.write('});' + '\n')
             f.write('heatmap.setMap(map);' + '\n')
             f.write(settings_string)
-
 
     def write_fitBounds(self, f):
         if self._fitBounds:
